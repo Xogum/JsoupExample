@@ -12,6 +12,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.sergiodlz.jsoupexample.Entities.Categoria;
+import com.sergiodlz.jsoupexample.Entities.Pregrado;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,12 +23,14 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     Button btnProfessors;
     ListView lvProfessors;
-    final String URL = "http://www.uninorte.edu.co/web/ingenieria-de-sistemas-y-computacion/nuestros-docentes";
+    final String URL_PROFESSORS = "http://www.uninorte.edu.co/web/ingenieria-de-sistemas-y-computacion/nuestros-docentes";
+    final String URL_CARRERAS = "http://www.uninorte.edu.co/carreras";
     ProgressDialog mProgressDialog;
 
     ArrayAdapter<String> professorsAdapter;
@@ -63,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                Document document = Jsoup.connect(URL).get();
+                Document document = Jsoup.connect(URL_PROFESSORS).get();
                 Elements professorsLink = document.select("a.flink");
                 for (Element professor : professorsLink) {
                     professors.add(professor.text());
@@ -81,6 +86,48 @@ public class MainActivity extends AppCompatActivity {
                     android.R.layout.simple_list_item_1,
                     professors);
             lvProfessors.setAdapter(professorsAdapter);
+            mProgressDialog.dismiss();
+        }
+    }
+
+    private class GetCarreras extends AsyncTask<Void, Void, Void> {
+        ArrayList<Pregrado> Pregrados = new ArrayList<>();
+        ArrayList<Categoria> Categorias = new ArrayList<>();
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mProgressDialog = new ProgressDialog(MainActivity.this);
+            mProgressDialog.setTitle("Opteniendo Pregrados");
+            mProgressDialog.setMessage("Espere...");
+            mProgressDialog.setIndeterminate(false);
+            mProgressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Document document = Jsoup.connect(URL_CARRERAS).get();
+                Elements categorias = document.select("div.panel-heading");
+                int cont = 1;
+                for (Element categoria : categorias) {
+                    Categoria cPregrados = new Categoria();
+                    cPregrados.Id = cont;
+                    cPregrados.Nombre = categoria.text();
+                    Set<String> clases = categoria.classNames();
+                    Object[] cs = clases.toArray();
+                    cPregrados.Color = cs.toString();
+                    Categorias.add(cPregrados);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
             mProgressDialog.dismiss();
         }
     }
