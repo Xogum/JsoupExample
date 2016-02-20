@@ -8,4 +8,36 @@ public class Estudio {
     private String Estudio;
     private String Universidad;
     private int ProfesorId;
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
+    }
+
+    public String getEstudio() {
+        return Estudio;
+    }
+
+    public void setEstudio(String estudio) {
+        Estudio = estudio;
+    }
+
+    public String getUniversidad() {
+        return Universidad;
+    }
+
+    public void setUniversidad(String universidad) {
+        Universidad = universidad;
+    }
+
+    public int getProfesorId() {
+        return ProfesorId;
+    }
+
+    public void setProfesorId(int profesorId) {
+        ProfesorId = profesorId;
+    }
 }

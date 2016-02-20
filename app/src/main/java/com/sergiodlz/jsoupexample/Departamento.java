@@ -8,4 +8,20 @@ import java.sql.Struct;
 public class Departamento {
     private int Id;
     private String Departamento;
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
+    }
+
+    public String getDepartamento() {
+        return Departamento;
+    }
+
+    public void setDepartamento(String departamento) {
+        Departamento = departamento;
+    }
 }

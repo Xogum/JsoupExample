@@ -8,4 +8,36 @@ public class Contacto {
     private String Telefono;
     private int ext;
     private String Correo;
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
+    }
+
+    public String getTelefono() {
+        return Telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        Telefono = telefono;
+    }
+
+    public int getExt() {
+        return ext;
+    }
+
+    public void setExt(int ext) {
+        this.ext = ext;
+    }
+
+    public String getCorreo() {
+        return Correo;
+    }
+
+    public void setCorreo(String correo) {
+        Correo = correo;
+    }
 }
