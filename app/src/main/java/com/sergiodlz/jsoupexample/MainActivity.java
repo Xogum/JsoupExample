@@ -27,13 +27,14 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnProfessors;
+    Button btnProfessors, btnCategorias;
     ListView lvProfessors;
     final String URL_PROFESSORS = "http://www.uninorte.edu.co/web/ingenieria-de-sistemas-y-computacion/nuestros-docentes";
     final String URL_CARRERAS = "http://www.uninorte.edu.co/carreras";
     ProgressDialog mProgressDialog;
 
     ArrayAdapter<String> professorsAdapter;
+    ArrayAdapter<Categoria> categoriasAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 new GetProfessors().execute();
+            }
+        });
+
+        btnCategorias = (Button) findViewById(R.id.btnCategorias);
+        btnCategorias.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new GetCarreras().execute();
             }
         });
 
@@ -93,12 +102,13 @@ public class MainActivity extends AppCompatActivity {
     private class GetCarreras extends AsyncTask<Void, Void, Void> {
         ArrayList<Pregrado> Pregrados = new ArrayList<>();
         ArrayList<Categoria> Categorias = new ArrayList<>();
+        ArrayList<String> scategorias = new ArrayList<>();
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             mProgressDialog = new ProgressDialog(MainActivity.this);
-            mProgressDialog.setTitle("Opteniendo Pregrados");
+            mProgressDialog.setTitle("Obteniendo Pregrados");
             mProgressDialog.setMessage("Espere...");
             mProgressDialog.setIndeterminate(false);
             mProgressDialog.show();
@@ -112,12 +122,13 @@ public class MainActivity extends AppCompatActivity {
                 int cont = 1;
                 for (Element categoria : categorias) {
                     Categoria cPregrados = new Categoria();
-                    cPregrados.Id = cont;
+                    cPregrados.Id = cont; cont++;
                     cPregrados.Nombre = categoria.text();
                     Set<String> clases = categoria.classNames();
-                    Object[] cs = clases.toArray();
-                    cPregrados.Color = cs.toString();
+                    String[] c = clases.toArray(new String[clases.size()]);
+                    cPregrados.Color = c[1];
                     Categorias.add(cPregrados);
+                    scategorias.add(cPregrados.Nombre);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -127,7 +138,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void result) {
-
+            professorsAdapter = new ArrayAdapter<String>(
+                    getBaseContext(),
+                    android.R.layout.simple_list_item_1,
+                    scategorias);
+            lvProfessors.setAdapter(professorsAdapter);
             mProgressDialog.dismiss();
         }
     }
