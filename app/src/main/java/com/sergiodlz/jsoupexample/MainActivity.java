@@ -27,7 +27,7 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnProfessors, btnCategorias;
+    Button btnProfessors, btnCategorias, btnPregrados;
     ListView lvProfessors;
     final String URL_PROFESSORS = "http://www.uninorte.edu.co/web/ingenieria-de-sistemas-y-computacion/nuestros-docentes";
     final String URL_CARRERAS = "http://www.uninorte.edu.co/carreras";
@@ -35,6 +35,11 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayAdapter<String> professorsAdapter;
     ArrayAdapter<Categoria> categoriasAdapter;
+
+    ArrayList<Categoria> Categorias = new ArrayList<>();
+    ArrayList<String> scategorias = new ArrayList<>();
+    ArrayList<Pregrado> Pregrados = new ArrayList<>();
+    ArrayList<String> spregrados = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +59,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 new GetCarreras().execute();
+            }
+        });
+
+        btnPregrados = (Button) findViewById(R.id.btnPregrados);
+        btnPregrados.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                professorsAdapter = new ArrayAdapter<String>(
+                        getBaseContext(),
+                        android.R.layout.simple_list_item_1,
+                        spregrados);
+                lvProfessors.setAdapter(professorsAdapter);
             }
         });
 
@@ -100,15 +117,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class GetCarreras extends AsyncTask<Void, Void, Void> {
-        ArrayList<Pregrado> Pregrados = new ArrayList<>();
-        ArrayList<Categoria> Categorias = new ArrayList<>();
-        ArrayList<String> scategorias = new ArrayList<>();
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             mProgressDialog = new ProgressDialog(MainActivity.this);
-            mProgressDialog.setTitle("Obteniendo Pregrados");
+            mProgressDialog.setTitle("Obteniendo Categorias");
             mProgressDialog.setMessage("Espere...");
             mProgressDialog.setIndeterminate(false);
             mProgressDialog.show();
@@ -118,17 +132,32 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             try {
                 Document document = Jsoup.connect(URL_CARRERAS).get();
-                Elements categorias = document.select("div.panel-heading");
-                int cont = 1;
-                for (Element categoria : categorias) {
+                Elements carreras = document.select("div.panel.panel-default");
+                int contC = 1, contP = 1;
+                for (Element c : carreras) {
+                    //Obteniendo las categorias
+                    Elements categorias = c.select("div.panel-heading");
+                    Element categoria = categorias.first();
                     Categoria cPregrados = new Categoria();
-                    cPregrados.Id = cont; cont++;
+                    cPregrados.Id = contC; contC++;
                     cPregrados.Nombre = categoria.text();
                     Set<String> clases = categoria.classNames();
-                    String[] c = clases.toArray(new String[clases.size()]);
-                    cPregrados.Color = c[1];
+                    String[] clas = clases.toArray(new String[clases.size()]);
+                    cPregrados.Color = clas[1];
                     Categorias.add(cPregrados);
                     scategorias.add(cPregrados.Nombre);
+
+                    //Obteniendo los pregrados de cada categoria
+                    Elements pregrados =  c.select("p.desc");
+                    for (Element p : pregrados) {
+                        Pregrado pregrado = new Pregrado();
+                        pregrado.Id = contP; contP++;
+                        pregrado.Categoria = cPregrados;
+                        pregrado.Nombre = p.text();
+                        pregrado.Url = p.child(0).attr("href");
+                        Pregrados.add(pregrado);
+                        spregrados.add(pregrado.Nombre);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -146,5 +175,7 @@ public class MainActivity extends AppCompatActivity {
             mProgressDialog.dismiss();
         }
     }
+
+
     
 }
