@@ -94,10 +94,20 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                Document document = Jsoup.connect(URL_PROFESSORS).get();
-                Elements professorsLink = document.select("a.flink");
-                for (Element professor : professorsLink) {
-                    professors.add(professor.text());
+                for (Pregrado pregrado : Pregrados) {
+                    String li = pregrado.Url;
+                    Document document = Jsoup.connect(pregrado.Url).get();
+                    Elements links = document.select("a.link");
+                    for (Element link : links) {
+                        String text = link.text();
+                        if(link.text().equalsIgnoreCase("Nuestros Docentes")){
+                            Document profesoresDoc = Jsoup.connect(link.attr("href")).get();
+                            Elements profesoresLink = profesoresDoc.select("a.flink");
+                            for (Element profesores : profesoresLink) {
+                                professors.add(profesores.text());
+                            }
+                        }
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -154,7 +164,11 @@ public class MainActivity extends AppCompatActivity {
                         pregrado.Id = contP; contP++;
                         pregrado.Categoria = cPregrados;
                         pregrado.Nombre = p.text();
-                        pregrado.Url = p.child(0).attr("href");
+                        if(pregrado.Nombre.equals("Pregrado en Relaciones Internacionales ")){
+                            pregrado.Url = "http://www.uninorte.edu.co" + p.child(0).attr("href");
+                        }else{
+                            pregrado.Url = p.child(0).attr("href");
+                        }
                         Pregrados.add(pregrado);
                         spregrados.add(pregrado.Nombre);
                     }
